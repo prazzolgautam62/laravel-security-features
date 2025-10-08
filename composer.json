@@ -1,5 +1,5 @@
 {
-    "name": "prajwol/laravel-security-features",
+    "name": "prazzolgautam62/laravel-security-features",
     "description": "A Laravel package for 2FA via email, login logs, and device management with configurable features.",
     "type": "library",
     "license": "MIT",
