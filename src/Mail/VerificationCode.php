@@ -21,7 +21,7 @@ class VerificationCode extends Mailable
     {
         return $this->from(config('security-features.email_from'))
                     ->subject('Your Verification Code')
-                    ->text('security-features::verification_code') // You'll publish this view later
+                    ->text('security-features::emails.verification_code') // You'll publish this view later
                     ->with(['code' => $this->code]);
     }
 }

@@ -34,13 +34,13 @@ trait HandlesSecurityFeatures
             if (!$device) {
                 $needsVerification = true;
                 // Temporarily store the new device hash in cache for verification
-                Cache::put("pending_device_{$user->id}", $deviceHash, config('security-features.verification_code_expiry'));
+                Cache::put("pending_device_{$user->id}", $deviceHash, now()->addMinutes(config('security-features.verification_code_expiry')));
             }
         }
 
         if ($needsVerification) {
             $code = $this->generateVerificationCode();
-            Cache::put("verification_code_{$user->id}", $code, config('security-features.verification_code_expiry'));
+            Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
             Mail::to($user->email)->send(new VerificationCode($code));
 
             // Logout temporarily to prevent access until verified
