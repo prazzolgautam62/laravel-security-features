@@ -20,7 +20,7 @@ class SecurityFeaturesServiceProvider extends ServiceProvider
 
         // Publish email view
         $this->publishes([
-            __DIR__ . '/../resources/views/verification_code.blade.php' => resource_path('views/vendor/security-features/verification_code.blade.php'),
+            __DIR__ . '/../resources/views' => resource_path('views/vendor/security-features'),
         ], 'views');
 
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'security-features');
