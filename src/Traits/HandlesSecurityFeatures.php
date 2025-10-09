@@ -115,7 +115,7 @@ trait HandlesSecurityFeatures
                                ->where('device_hash', $deviceHash)
                                ->first();
 
-            if ($pendingDevice && config('security-features.device_management')) {
+            if ($pendingDevice && config('security-features.enable_device_management')) {
                 if ($device) {
                     // Update existing device
                     $device->update([
