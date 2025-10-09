@@ -141,17 +141,7 @@ trait HandlesSecurityFeatures
             }
         }
 
-        // Log in the user and issue Passport token
-        Auth::login($user);
-        $token = $user->createToken('access_token')->accessToken;
-
-        // Log the login if enabled (event will handle it)
-        return response()->json([
-            'status' => true,
-            'access_token' => 'Bearer ' . $token,
-            'message' => 'Successful authentication!',
-            'user' => $user
-        ], 200);
+        return $user;
     }
 
     protected function generateVerificationCode()
