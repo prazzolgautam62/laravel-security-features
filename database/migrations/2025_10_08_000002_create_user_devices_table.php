@@ -12,6 +12,9 @@ class CreateUserDevicesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->string('device_hash'); // MD5 of user_agent (or user_agent + ip)
+            $table->string('user_agent');
+            $table->string('ip_address');
+            $table->string('device_info');
             $table->timestamp('last_verified_at')->nullable();
             $table->timestamps();
 
