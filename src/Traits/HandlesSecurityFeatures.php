@@ -76,6 +76,12 @@ trait HandlesSecurityFeatures
         return null; // Proceed to issue token
     }
 
+    public function generateAndSendOtp($user_id, $email){
+        $code = $this->generateVerificationCode();
+        Cache::put("verification_code_{$user_id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
+        Mail::to($email)->send(new VerificationCode($code));
+    }
+
     /**
      * Verify the code and issue token if valid.
      * This can be a separate method in your VerifyController.
