@@ -45,7 +45,7 @@ Follow these steps to install and configure the package in your Laravel applicat
    This will create a required view file in your Laravel project.
 
 5. **Publish the route and controller**
-   Publish the package view file:
+   Publish the package route file:
    ```bash
    php artisan vendor:publish --tag=routes
    ```
