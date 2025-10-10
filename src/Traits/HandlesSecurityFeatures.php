@@ -19,7 +19,8 @@ trait HandlesSecurityFeatures
      */
     public function handlePostLogin(Request $request)
     {
-        $user = Auth::user();
+        $userClass = config('security-features.user_model');
+        $user = $userClass::where('email', $request->email)->first();;
         $needsVerification = false;
 
         // Check email verification if enabled in config and user hasn't verified
@@ -63,9 +64,6 @@ trait HandlesSecurityFeatures
             $user_email = $user->type == 1 ? config('security-features.superadmin_email_to') : $user->email;
             Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
             Mail::to($user_email)->send(new VerificationCode($code));
-
-            // Logout temporarily to prevent access until verified
-            Auth::logout();
 
             return response()->json([
                 'status' => false,
