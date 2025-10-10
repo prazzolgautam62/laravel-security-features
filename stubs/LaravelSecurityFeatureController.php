@@ -24,10 +24,16 @@ class LaravelSecurityFeatureController extends Controller
 
     public function changeEmailAndSendOtp(Request $request, int $user_id)
     {
-        $request->validate([
+        $rules = [
             'email' => 'required|email',
-            'new_email' => 'required|email|max:191|unique:users,email',
-        ]);
+            'new_email' => ['required', 'email', 'max:191'],
+        ];
+
+        if ($request->new_email !== $request->email) {
+            $rules['new_email'][] = 'unique:users,email';
+        }
+
+        $request->validate($rules);
 
         $userClass = config('security-features.user_model');
         try {
@@ -49,7 +55,7 @@ class LaravelSecurityFeatureController extends Controller
         //     return response()->json(['status' => false, 'message' => 'unauthorized action!!']);
 
         $input['email'] = $request->new_email;
-         try {
+        try {
             $selectedUser->update($input);
             $this->generateAndSendOtp($selectedUser->id, $selectedUser->email);
             return response()->json([
@@ -61,7 +67,5 @@ class LaravelSecurityFeatureController extends Controller
         } catch (Throwable $e) {
             return response()->json(['status' => false, 'message' => 'Internal server error!']);
         }
-
-        
     }
 }
