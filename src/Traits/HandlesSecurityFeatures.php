@@ -68,6 +68,7 @@ trait HandlesSecurityFeatures
             return response()->json([
                 'status' => false,
                 'needs_verify' => true,
+                'email' => $user->email,
                 'message' => 'Verification code sent to your email. Please verify to complete login.',
             ], 200);
         }
