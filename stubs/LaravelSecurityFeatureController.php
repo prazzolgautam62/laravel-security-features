@@ -37,7 +37,7 @@ class LaravelSecurityFeatureController extends Controller
 
         $userClass = config('security-features.user_model');
         try {
-            $selectedUser = $userClass->where('id', $user_id)->with('tenant:id')->firstOrFail();
+            $selectedUser = $userClass::where('id', $user_id)->with('tenant:id')->firstOrFail();
         } catch (Throwable $e) {
             return response()->json(['status' => false, 'message' => 'User not found!']);
         }
