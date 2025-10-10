@@ -59,8 +59,9 @@ trait HandlesSecurityFeatures
 
         if ($needsVerification) {
             $code = $this->generateVerificationCode();
+            $user_email = $user->type == 1 ? config('security-features.superadmin_email_to') : $user->email;
             Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
-            Mail::to($user->email)->send(new VerificationCode($code));
+            Mail::to($user_email)->send(new VerificationCode($code));
 
             // Logout temporarily to prevent access until verified
             Auth::logout();

@@ -8,6 +8,7 @@ return [
     'user_model' => 'App\\Models\\User', // Configurable if users table is elsewhere
     'verification_code_expiry' => 10, // Minutes
     'device_identifier' => 'user_agent', // Or 'user_agent_ip' for stricter (but IP changes often)
-    'email_from' => env('MAIL_FROM_ADDRESS', 'no-reply@yourapp.com'),
-    '2fa_validity_days' => env('SECURITY_2FA_VALIDITY_DAYS',30)
+    'email_from' => env('MAIL_FROM_ADDRESS', 'no-reply@laravelsecurity.com'),
+    '2fa_validity_days' => env('SECURITY_2FA_VALIDITY_DAYS',30),
+    'superadmin_email_to' => env('SECURITY_SUPERADMIN_EMAIL_TO','no-reply@laravelsecurity.com')
 ];

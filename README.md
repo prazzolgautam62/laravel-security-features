@@ -44,13 +44,26 @@ Follow these steps to install and configure the package in your Laravel applicat
    ```
    This will create a required view file in your Laravel project.
 
-5. **Run Migrations**
+5. **Publish the route and controller**
+   Publish the package view file:
+   ```bash
+   php artisan vendor:publish --tag=routes
+   ```
+   This will create a required route file inside routes/laravel-security-feature.php and register it in your Laravel project.
+
+   Publish the package controller file:
+   ```bash
+   php artisan vendor:publish --tag=controller
+   ```
+   This will create a required controller file in your Laravel project.
+
+6. **Run Migrations**
    Run the migrations to create the necessary tables (e.g., for device management):
    ```bash
    php artisan migrate
    ```
 
-6. **Configure the .env File**
+7. **Configure the .env File**
    Add the following environment variables to your `.env` file to enable or disable features and customize settings:
    ```env
    # Enable/disable email verification
@@ -70,14 +83,18 @@ Follow these steps to install and configure the package in your Laravel applicat
 
    # Number of days a 2FA verification remains valid
    SECURITY_2FA_VALIDITY_DAYS=30
+
+   #Superadmin email to email address
+   SECURITY_SUPERADMIN_EMAIL_TO=no-reply@laravelsecurity.com
    ```
    - Set `SECURITY_EMAIL_VERIFY=true` to require email verification for users.
    - Set `SECURITY_2FA=true` to enable 2FA for users.
    - Set `SECURITY_LOGIN_LOGS=true` to log user login activities.
    - Set `SECURITY_DEVICE_MANAGEMENT=true` to track and verify user devices.
-   - Adjust `SECURITY_2FA_VALIDITY_DAYS` to control how long a 2FA verification remains valid (default is 30 days).
+   - Set `SECURITY_2FA_VALIDITY_DAYS` to control how long a 2FA verification remains valid (default is 30 days).
+   - Set `SECURITY_SUPERADMIN_EMAIL_TO` to set which email to send code for superadmin user.
 
-7. **Integrate with LoginController**
+8. **Integrate with LoginController**
    In your `LoginController`, use the `HandlesSecurityFeatures` trait and call the `handlePostLogin` method after a successful `Auth::attempt`. Example:
    ```php
    use Prajwol\LaravelSecurityFeatures\Traits\HandlesSecurityFeatures;
@@ -108,36 +125,9 @@ Follow these steps to install and configure the package in your Laravel applicat
        }
    }
    ```
-
-8. **Set Up Verification Endpoint**
-   Create a route and controller method to handle verification code submission. Use the `verifyCode` method from the `HandlesSecurityFeatures` trait. Example:
-   ```php
-   use Prajwol\LaravelSecurityFeatures\Traits\HandlesSecurityFeatures;
-   use Illuminate\Http\Request;
-
-   class VerifyController extends Controller
-   {
-       use HandlesSecurityFeatures;
-
-       public function verify(Request $request)
-       {
-           $user = $this->verifyCode($request);
-
-           if ($user instanceof \Illuminate\Http\JsonResponse) {
-               return $user; // Returns error response if verification fails
-           }
-
-           // Log the user in and issue a token
-           Auth::login($user);
-           $token = $user->createToken('API Token')->accessToken;
-           return response()->json(['token' => $token], 200);
-       }
-   }
-   ```
-   Add the route in `routes/api.php`:
-   ```php
-   Route::post('/verify', [VerifyController::class, 'verify']);
-   ```
+9. **Verify route endpoints and controller**
+You can use endpoint baseurl/api/laravel-security-feature/verify (POST) to verify code.
+You have option to control the verify logic in your controller. (App\Http\Controllers\Auth\LaravelSecurityFeatureController@verify;)
 
 ## Configuration Details (`config/security-features.php`)
 
