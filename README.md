@@ -12,7 +12,7 @@ This package enhances Laravel applications with advanced security features inclu
 
 ## Requirements
 - PHP 7.2, 7.3, or 7.4
-- A `users` table in your database
+- A `users` table in your database with column 'email_verified_at'
 
 ## Installation
 

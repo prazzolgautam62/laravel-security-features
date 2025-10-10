@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Prajwol\LaravelSecurityFeatures\Mail\VerificationCode;
 use Prajwol\LaravelSecurityFeatures\Models\UserDevice;
 
@@ -84,65 +85,73 @@ trait HandlesSecurityFeatures
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required|string|size:6',
+            'code'  => 'required|string|size:6',
         ]);
 
-        $user = config('security-features.user_model')::where('email', $request->email)->first();
+        $userClass = config('security-features.user_model');
+        $user = $userClass::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Invalid email'], 401);
+            throw ValidationException::withMessages([
+                'email' => ['Invalid email.']
+            ]);
         }
 
         $cachedCode = Cache::get("verification_code_{$user->id}");
 
         if (!$cachedCode || $cachedCode !== $request->code) {
-            return response()->json(['message' => 'Invalid or expired code'], 401);
+            throw ValidationException::withMessages([
+                'code' => ['Invalid or expired code.']
+            ]);
         }
 
         // Clear cache
         Cache::forget("verification_code_{$user->id}");
 
+        // Email verification
         if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
             $user->email_verified_at = now();
             $user->save();
         }
 
-         // Handle device management and 2FA verification
+        // Device management & 2FA
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
-            $pendingDevice = Cache::pull("pending_device_{$user->id}");
-            $deviceHash = $pendingDevice['hash'] ?? $this->getDeviceHash($request);
-
-            $device = UserDevice::where('user_id', $user->id)
-                               ->where('device_hash', $deviceHash)
-                               ->first();
-
-            if ($pendingDevice && config('security-features.enable_device_management')) {
-                if ($device) {
-                    // Update existing device
-                    $device->update([
-                        'user_agent' => $pendingDevice['user_agent'],
-                        'ip_address' => $pendingDevice['ip_address'],
-                        'device_info' => $pendingDevice['device_info'],
-                        'last_verified_at' => now(),
-                    ]);
-                } else {
-                    // Create new device
-                    UserDevice::create([
-                        'user_id' => $user->id,
-                        'device_hash' => $pendingDevice['hash'],
-                        'user_agent' => $pendingDevice['user_agent'],
-                        'ip_address' => $pendingDevice['ip_address'],
-                        'device_info' => $pendingDevice['device_info'],
-                        'last_verified_at' => now(),
-                    ]);
-                }
-            } elseif ($device && config('security-features.enable_2fa') && $user->enable_2fa) {
-                // Update last_verified_at for 2FA re-verification
-                $device->update(['last_verified_at' => now()]);
-            }
+            $this->handleDeviceManagement($request, $user);
         }
 
         return $user;
+    }
+
+    protected function handleDeviceManagement(Request $request, $user)
+    {
+        $pendingDevice = Cache::pull("pending_device_{$user->id}");
+        $deviceHash = $pendingDevice['hash'] ?? $this->getDeviceHash($request);
+
+        $device = UserDevice::where('user_id', $user->id)
+            ->where('device_hash', $deviceHash)
+            ->first();
+
+        if ($pendingDevice && config('security-features.enable_device_management')) {
+            if ($device) {
+                $device->update([
+                    'user_agent'       => $pendingDevice['user_agent'],
+                    'ip_address'       => $pendingDevice['ip_address'],
+                    'device_info'      => $pendingDevice['device_info'],
+                    'last_verified_at' => now(),
+                ]);
+            } else {
+                UserDevice::create([
+                    'user_id'          => $user->id,
+                    'device_hash'      => $pendingDevice['hash'],
+                    'user_agent'       => $pendingDevice['user_agent'],
+                    'ip_address'       => $pendingDevice['ip_address'],
+                    'device_info'      => $pendingDevice['device_info'],
+                    'last_verified_at' => now(),
+                ]);
+            }
+        } elseif ($device && config('security-features.enable_2fa') && $user->enable_2fa) {
+            $device->update(['last_verified_at' => now()]);
+        }
     }
 
     protected function generateVerificationCode()
