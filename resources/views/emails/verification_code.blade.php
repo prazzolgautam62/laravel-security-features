@@ -26,7 +26,7 @@
             text-align: center;
         }
         .header h1 {
-            color: #1e40af;
+            color: #303e4d;
             font-size: 28px;
             font-weight: 700;
             margin: 0;
@@ -45,7 +45,7 @@
         .code-box p {
             font-size: 36px;
             font-weight: 700;
-            color: #1e40af;
+            color: #303e4d;
             letter-spacing: 4px;
             margin: 0;
             font-family: 'Roboto', monospace;
@@ -68,7 +68,7 @@
             font-size: 12px;
         }
         .footer a {
-            color: #1e40af;
+            color: #303e4d;
             text-decoration: none;
         }
         .footer a:hover {
@@ -95,7 +95,7 @@
         <!-- Instructions -->
         <div class="instructions">
             <p>Please enter this code in the verification field to confirm your email address.</p>
-            <p>If you didn’t request this code, please ignore this email or contact our <a href="mailto:support@vedabilling.com">support team</a>.</p>
+            <p>If you didn’t request this code, please ignore this email or contact our <a target="_blank" href="https://veda-app.com/contact">support team</a>.</p>
         </div>
 
         <!-- Footer -->
