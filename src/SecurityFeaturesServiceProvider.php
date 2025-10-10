@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Prajwol\LaravelSecurityFeatures\Listeners\LogSuccessfulLogin;
+use PrazzolGautam62\LaravelSecurityFeatures\Http\Middleware\EmailVerifiedMiddleware;
 
 class SecurityFeaturesServiceProvider extends ServiceProvider
 {
@@ -39,6 +40,8 @@ class SecurityFeaturesServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../stubs/LaravelSecurityFeatureController.php' => app_path('Http/Controllers/Auth/LaravelSecurityFeatureController.php'),
         ], 'controller');
+
+        $this->app['router']->aliasMiddleware('laravel-security-feature.email-verified', EmailVerifiedMiddleware::class);
 
         // Register event listener for login logs
         if (config('security-features.enable_login_logs')) {

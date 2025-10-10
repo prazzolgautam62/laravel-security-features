@@ -24,9 +24,9 @@ trait HandlesSecurityFeatures
         $needsVerification = false;
 
         // Check email verification if enabled in config and user hasn't verified
-        if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
-            $needsVerification = true;
-        }
+        // if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
+        //     $needsVerification = true;
+        // }
 
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
             $deviceHash = $this->getDeviceHash($request);
