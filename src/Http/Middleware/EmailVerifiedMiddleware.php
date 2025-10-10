@@ -1,6 +1,6 @@
 <?php
 
-namespace PrazzolGautam62\LaravelSecurityFeatures\Http\Middleware;
+namespace Prajwol\LaravelSecurityFeatures\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

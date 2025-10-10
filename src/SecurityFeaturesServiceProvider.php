@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Prajwol\LaravelSecurityFeatures\Listeners\LogSuccessfulLogin;
-use PrazzolGautam62\LaravelSecurityFeatures\Http\Middleware\EmailVerifiedMiddleware;
+use Prajwol\LaravelSecurityFeatures\Http\Middleware\EmailVerifiedMiddleware;
 
 class SecurityFeaturesServiceProvider extends ServiceProvider
 {
