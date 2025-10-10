@@ -17,7 +17,7 @@ class EmailVerifiedMiddleware
             if (!$user || !$user->email_verified_at) {
                 return response()->json([
                     'status' => false,
-                    'needs_verify' => true,
+                    'needs_email_verification' => true,
                     'message' => 'Email not verified. Please verify your email to continue.',
                 ], 200);
             }
