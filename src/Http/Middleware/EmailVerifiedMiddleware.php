@@ -19,7 +19,7 @@ class EmailVerifiedMiddleware
                     'status' => false,
                     'needs_verify' => true,
                     'message' => 'Email not verified. Please verify your email to continue.',
-                ], 403);
+                ], 200);
             }
         }
 
