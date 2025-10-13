@@ -316,7 +316,8 @@ trait HandlesSecurityFeatures
 
     protected function generateVerificationCode()
     {
-        return str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        $code_length = config('security-features.otp_length') ?? 6;
+        return str_pad(rand(0, 999999), $code_length, '0', STR_PAD_LEFT);
     }
 
     protected function getDeviceHash(Request $request)
