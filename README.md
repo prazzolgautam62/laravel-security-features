@@ -41,6 +41,7 @@ Follow these steps to install and configure the package in your Laravel applicat
    SECURITY_LOGIN_LOGS=false
    SECURITY_DEVICE_MANAGEMENT=false
    SECURITY_2FA_VALIDITY_DAYS=30
+   SECURITY_OTP_LENGTH=6
    SECURITY_SUPERADMIN_EMAIL_TO=no-reply@laravelsecurity.com
    ```
 
@@ -92,6 +93,7 @@ return [
     'device_identifier' => 'user_agent',
     'email_from' => env('MAIL_FROM_ADDRESS', 'no-reply@laravelsecurity.com'),
     '2fa_validity_days' => env('SECURITY_2FA_VALIDITY_DAYS', 30),
+    'otp_length' => env('SECURITY_OTP_LENGTH',6),
     'superadmin_email_to' => env('SECURITY_SUPERADMIN_EMAIL_TO', 'no-reply@laravelsecurity.com'),
 ];
 ```
