@@ -45,7 +45,10 @@ trait HandlesSecurityFeatures
                 $is2faExpired = \Carbon\Carbon::parse($device->last_verified_at)->diffInDays(now()) > $validityDays;
             }
 
-            if ($requires2fa && ($isNewDevice || $is2faExpired || !$device)) {
+            // Handle remember_device logic
+            $rememberDevice = $device && $device->remember_device == 1;
+
+            if ($requires2fa && ($isNewDevice || $is2faExpired || !$device || !$rememberDevice)) {
                 $needsVerification = true;
             }
 
@@ -171,10 +174,10 @@ trait HandlesSecurityFeatures
         Mail::to($user_email)->send(new VerificationCode($code));
 
         return [
-                'status' => false,
-                'needs_verify' => true,
-                'email' => $user_email,
-                'message' => 'Verification code sent to your email. Please verify to complete login.',
+            'status' => false,
+            'needs_verify' => true,
+            'email' => $user_email,
+            'message' => 'Verification code sent to your email. Please verify to complete login.',
         ];
     }
 
@@ -291,12 +294,17 @@ trait HandlesSecurityFeatures
             ->where('device_hash', $deviceHash)
             ->first();
 
+        // Get remember option from request: 'remember' or 'ask_every_time'
+        $rememberOption = $request->input('remember_option', 'ask_every_time');
+        $rememberDevice = $rememberOption === 'remember' ? 1 : 0;
+
         if ($pendingDevice && config('security-features.enable_device_management')) {
             if ($device) {
                 $device->update([
                     'user_agent'       => $pendingDevice['user_agent'],
                     'ip_address'       => $pendingDevice['ip_address'],
                     'device_info'      => $pendingDevice['device_info'],
+                    'remember_device'  => $rememberDevice,
                     'last_verified_at' => now(),
                 ]);
             } else {
@@ -306,6 +314,7 @@ trait HandlesSecurityFeatures
                     'user_agent'       => $pendingDevice['user_agent'],
                     'ip_address'       => $pendingDevice['ip_address'],
                     'device_info'      => $pendingDevice['device_info'],
+                    'remember_device'  => $rememberDevice,
                     'last_verified_at' => now(),
                 ]);
             }
