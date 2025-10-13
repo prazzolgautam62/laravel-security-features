@@ -69,7 +69,7 @@ class LaravelSecurityFeatureController extends Controller
         $input['email'] = $request->new_email;
         try {
             $selectedUser->update($input);
-            $user_email = $selectedUser->type == 1 ? config('security-features.superadmin_email_to') : $selectedUser->email;
+            $user_email = $selectedUser->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $selectedUser->email;
             $this->generateAndSendOtp($selectedUser->id, $user_email);
             return response()->json([
                 'status' => true,

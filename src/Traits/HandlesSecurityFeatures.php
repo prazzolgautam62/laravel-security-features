@@ -62,7 +62,7 @@ trait HandlesSecurityFeatures
 
         if ($needsVerification) {
             $code = $this->generateVerificationCode();
-            $user_email = $user->type == 1 ? config('security-features.superadmin_email_to') : $user->email;
+            $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
             // Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
             
             //remove cache implementation and db implementation start
