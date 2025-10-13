@@ -13,7 +13,7 @@ class LaravelSecurityFeatureController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['verify']]);
+        $this->middleware('auth:api', ['except' => ['verify','resendOtpForEmail']]);
     }
 
     public function verify(Request $request)
