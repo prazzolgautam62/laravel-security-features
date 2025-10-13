@@ -21,7 +21,7 @@ trait HandlesSecurityFeatures
     public function handlePostLogin(Request $request)
     {
         $userClass = config('security-features.user_model');
-        $user = $userClass::where('email', $request->email)->first();;
+        $user = $userClass::where('email', $request->email)->first();
         $needsVerification = false;
 
         // Check email verification if enabled in config and user hasn't verified
@@ -64,11 +64,11 @@ trait HandlesSecurityFeatures
             $code = $this->generateVerificationCode();
             $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
             // Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
-            
+
             //remove cache implementation and db implementation start
             $existingOtp = OtpRequest::where('user_id', $user->id)
-            ->where('expiry_time', '>=', now())
-            ->first();
+                ->where('expiry_time', '>=', now())
+                ->first();
 
             if ($existingOtp) {
                 return response()->json([
@@ -99,34 +99,87 @@ trait HandlesSecurityFeatures
         return null; // Proceed to issue token
     }
 
-    public function generateAndSendOtp($user_id, $email){
+    public function generateAndSendOtp($user_id, $email)
+    {
         $code = $this->generateVerificationCode();
         // Cache::put("verification_code_{$user_id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
 
         //remove cache implementation and db implementation start
-            $existingOtp = OtpRequest::where('user_id', $user_id)
+        $existingOtp = OtpRequest::where('user_id', $user_id)
             ->where('expiry_time', '>=', now())
             ->first();
 
-            if ($existingOtp) {
-                return response()->json([
-                    'status' => false,
-                    'needs_verify' => true,
-                    'email' => $email,
-                    'message' => 'A verification code has already been sent. Please check your email.',
-                ], 200);
-            }
+        if ($existingOtp) {
+            return response()->json([
+                'status' => false,
+                'needs_verify' => true,
+                'email' => $email,
+                'message' => 'A verification code has already been sent. Please check your email.',
+            ], 200);
+        }
 
-            OtpRequest::create([
-                'user_id' => $user_id,
-                'otp_code' => $code,
-                'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
-            ]);
-            //remove cache implementation and db implementation end
+        OtpRequest::create([
+            'user_id' => $user_id,
+            'otp_code' => $code,
+            'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
+        ]);
+        //remove cache implementation and db implementation end
         Mail::to($email)->send(new VerificationCode($code));
     }
 
-    public function verifyEmailOnly(Request $request){
+    public function resendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $userClass = config('security-features.user_model');
+        $user = $userClass::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'needs_verify' => true,
+                'email' => $request->email,
+                'message' => 'Email not found',
+            ], 200);
+        }
+
+        $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
+
+        $existingOtp = OtpRequest::where('user_id', $user->id)
+            ->where('expiry_time', '>=', now())
+            ->first();
+
+        if ($existingOtp) {
+            return response()->json([
+                'status' => false,
+                'needs_verify' => true,
+                'email' => $user_email,
+                'message' => 'Please wait for some time to resend otp.',
+            ], 200);
+        }
+
+        $code = $this->generateVerificationCode();
+
+        OtpRequest::create([
+            'user_id' => $user->id,
+            'otp_code' => $code,
+            'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
+        ]);
+        //remove cache implementation and db implementation end
+        Mail::to($user_email)->send(new VerificationCode($code));
+
+        return response()->json([
+                'status' => false,
+                'needs_verify' => true,
+                'email' => $user_email,
+                'message' => 'Verification code sent to your email. Please verify to complete login.',
+        ], 200);
+    }
+
+    public function verifyEmailOnly(Request $request)
+    {
         $request->validate([
             'email' => 'required|email',
             'code'  => 'required|string|size:6',
@@ -142,7 +195,7 @@ trait HandlesSecurityFeatures
         }
 
         // $cachedCode = Cache::get("verification_code_{$user->id}");
-        
+
         //remove cache implementation and db implementation start
         $otpRecord = OtpRequest::where('user_id', $user->id)
             ->where('expiry_time', '>=', now())
@@ -160,8 +213,8 @@ trait HandlesSecurityFeatures
         // Cache::forget("verification_code_{$user->id}");
 
         //remove cache implementation and db implementation start
-        if($otpRecord)
-            OtpRequest::where('id',$otpRecord->id)->delete();
+        if ($otpRecord)
+            OtpRequest::where('id', $otpRecord->id)->delete();
         //remove cache implementation and db implementation end
 
         // Email verification
@@ -170,7 +223,6 @@ trait HandlesSecurityFeatures
             $user->save();
         }
         return $user;
-
     }
 
     /**
@@ -212,8 +264,8 @@ trait HandlesSecurityFeatures
         // Cache::forget("verification_code_{$user->id}");
 
         //remove cache implementation and db implementation start
-        if($otpRecord)
-            OtpRequest::where('id',$otpRecord->id)->delete();
+        if ($otpRecord)
+            OtpRequest::where('id', $otpRecord->id)->delete();
         //remove cache implementation and db implementation end
 
         // Email verification

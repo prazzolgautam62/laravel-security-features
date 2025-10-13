@@ -81,4 +81,8 @@ class LaravelSecurityFeatureController extends Controller
             return response()->json(['status' => false, 'message' => 'Internal server error!']);
         }
     }
+
+    public function resendOtpForEmail(Request $request){
+        $this->resendOtp($request);
+    }
 }
