@@ -22,7 +22,14 @@ class LaravelSecurityFeatureController extends Controller
         // custom logic here...
     }
 
-    public function verifyEmailOnly(Request $request){
+    public function verifyEmailOnlyForUser(Request $request, $user_id){
+        $userClass = config('security-features.user_model');
+        try {
+            $selectedUser = $userClass::where('id', $user_id)->with('tenant:id')->firstOrFail();
+        } catch (Throwable $e) {
+            return response()->json(['status' => false, 'message' => 'User not found!']);
+        }
+        
         $user = $this->verifyEmailOnly($request);
         // custom logic here...
     }

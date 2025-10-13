@@ -9,3 +9,6 @@ Route::post('/laravel-security-feature/verify', [LaravelSecurityFeatureControlle
 Route::post('/laravel-security-feature/changeEmailAndSendOtp/{user_id}',[LaravelSecurityFeatureController::class, 'changeEmailAndSendOtp'])
     ->name('laravel-security-feature.changeEmailAndSendOtp');
 
+Route::post('/laravel-security-features/verifyEmailOnly/{user_id}',[LaravelSecurityFeatureController::class,'verifyEmailOnlyForUser'])
+    ->name('laravel-security-feature.verifyEmailOnly');
+
