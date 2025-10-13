@@ -83,6 +83,7 @@ class LaravelSecurityFeatureController extends Controller
     }
 
     public function resendOtpForEmail(Request $request){
-        $this->resendOtp($request);
+        $res = $this->resendOtp($request);
+        return response()->json($res);
     }
 }

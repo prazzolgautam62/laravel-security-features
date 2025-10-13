@@ -137,12 +137,12 @@ trait HandlesSecurityFeatures
         $user = $userClass::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json([
+            return [
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $request->email,
                 'message' => 'Email not found',
-            ], 200);
+            ];
         }
 
         $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
@@ -152,12 +152,12 @@ trait HandlesSecurityFeatures
             ->first();
 
         if ($existingOtp) {
-            return response()->json([
+            return [
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $user_email,
                 'message' => 'Please wait for some time to resend otp.',
-            ], 200);
+            ];
         }
 
         $code = $this->generateVerificationCode();
@@ -170,12 +170,12 @@ trait HandlesSecurityFeatures
         //remove cache implementation and db implementation end
         Mail::to($user_email)->send(new VerificationCode($code));
 
-        return response()->json([
+        return [
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $user_email,
                 'message' => 'Verification code sent to your email. Please verify to complete login.',
-        ], 200);
+        ];
     }
 
     public function verifyEmailOnly(Request $request)
