@@ -69,11 +69,12 @@ class LaravelSecurityFeatureController extends Controller
         $input['email'] = $request->new_email;
         try {
             $selectedUser->update($input);
-            $this->generateAndSendOtp($selectedUser->id, $selectedUser->email);
+            $user_email = $selectedUser->type == 1 ? config('security-features.superadmin_email_to') : $selectedUser->email;
+            $this->generateAndSendOtp($selectedUser->id, $user_email);
             return response()->json([
                 'status' => true,
                 'needs_verify' => true,
-                'email' => $selectedUser->email,
+                'email' => $user_email,
                 'message' => 'Verification code sent to your email. Please verify to complete login.',
             ], 200);
         } catch (Throwable $e) {
