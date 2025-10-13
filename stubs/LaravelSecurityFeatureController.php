@@ -22,6 +22,11 @@ class LaravelSecurityFeatureController extends Controller
         // custom logic here...
     }
 
+    public function verifyEmailOnly(Request $request){
+        $user = $this->verifyEmailOnly($request);
+        // custom logic here...
+    }
+
     public function changeEmailAndSendOtp(Request $request, int $user_id)
     {
         $rules = [
@@ -59,7 +64,7 @@ class LaravelSecurityFeatureController extends Controller
             $selectedUser->update($input);
             $this->generateAndSendOtp($selectedUser->id, $selectedUser->email);
             return response()->json([
-                'status' => false,
+                'status' => true,
                 'needs_verify' => true,
                 'email' => $selectedUser->email,
                 'message' => 'Verification code sent to your email. Please verify to complete login.',

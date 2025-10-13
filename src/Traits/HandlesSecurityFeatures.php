@@ -82,6 +82,41 @@ trait HandlesSecurityFeatures
         Mail::to($email)->send(new VerificationCode($code));
     }
 
+    public function verifyEmailOnly(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'code'  => 'required|string|size:6',
+        ]);
+
+        $userClass = config('security-features.user_model');
+        $user = $userClass::where('email', $request->email)->first();
+
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'email' => ['Invalid email.']
+            ]);
+        }
+
+        $cachedCode = Cache::get("verification_code_{$user->id}");
+
+        if (!$cachedCode || $cachedCode !== $request->code) {
+            throw ValidationException::withMessages([
+                'code' => ['Invalid or expired code.']
+            ]);
+        }
+
+        // Clear cache
+        Cache::forget("verification_code_{$user->id}");
+
+        // Email verification
+        if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+        return $user;
+
+    }
+
     /**
      * Verify the code and issue token if valid.
      * This can be a separate method in your VerifyController.
@@ -114,10 +149,10 @@ trait HandlesSecurityFeatures
         Cache::forget("verification_code_{$user->id}");
 
         // Email verification
-        if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
-            $user->email_verified_at = now();
-            $user->save();
-        }
+        // if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
+        //     $user->email_verified_at = now();
+        //     $user->save();
+        // }
 
         // Device management & 2FA
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
