@@ -78,7 +78,7 @@ class LaravelSecurityFeatureController extends Controller
                 'message' => 'Verification code sent to your email. Please verify to complete login.',
             ], 200);
         } catch (Throwable $e) {
-            return response()->json(['status' => false, 'message' => 'Internal server error!']);
+            return response()->json(['status' => false, 'message' => 'Internal server error!','error'=>$e->getMessage()]);
         }
     }
 
