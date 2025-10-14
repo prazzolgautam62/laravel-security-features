@@ -2,6 +2,7 @@
 
 namespace Prajwol\LaravelSecurityFeatures\Traits;
 
+use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -62,6 +63,8 @@ trait HandlesSecurityFeatures
                 ], now()->addMinutes(config('security-features.verification_code_expiry')));
             }
         }
+        if(config('security-features.enable_login_logs'))
+            event(new Login('api', $user, false));
 
         if ($needsVerification) {
             $code = $this->generateVerificationCode();

@@ -26,7 +26,7 @@ Follow these steps to install and configure the package in your Laravel applicat
    php artisan vendor:publish --tag=config
    php artisan vendor:publish --tag=views
    php artisan vendor:publish --tag=routes
-   php artisan vendor:publish --tag=controller
+   php artisan vendor:publish --tag=controller (only in dev on first install)
    ```
 
 3. **Run Migrations**
