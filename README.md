@@ -43,6 +43,7 @@ Follow these steps to install and configure the package in your Laravel applicat
    SECURITY_2FA_VALIDITY_DAYS=30
    SECURITY_OTP_LENGTH=6
    SECURITY_SUPERADMIN_EMAIL_TO=no-reply@laravelsecurity.com
+   SECURITY_PLATFORM_NAME='Laravel Security'
    ```
 
 6. **Using the Middleware**

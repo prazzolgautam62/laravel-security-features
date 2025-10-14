@@ -12,5 +12,6 @@ return [
     'email_from_name' => env('MAIL_FROM_NAME', 'no-reply@laravelsecurity.com'),
     '2fa_validity_days' => env('SECURITY_2FA_VALIDITY_DAYS',30),
     'otp_length' => env('SECURITY_OTP_LENGTH',6),
-    'superadmin_email_to' => env('SECURITY_SUPERADMIN_EMAIL_TO','superadmin@laravelsecurity.com')
+    'superadmin_email_to' => env('SECURITY_SUPERADMIN_EMAIL_TO','superadmin@laravelsecurity.com'),
+    'platform_name' => env('SECURITY_PLATFORM_NAME','Laravel Security')
 ];
