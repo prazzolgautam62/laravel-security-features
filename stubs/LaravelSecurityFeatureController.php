@@ -51,6 +51,7 @@ class LaravelSecurityFeatureController extends Controller
         $request->validate($rules);
 
         $userClass = config('security-features.user_model');
+        
         try {
             $selectedUser = $userClass::where('id', $user_id)->with('tenant:id')->firstOrFail();
         } catch (Throwable $e) {
