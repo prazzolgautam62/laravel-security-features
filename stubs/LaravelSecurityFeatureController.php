@@ -70,13 +70,8 @@ class LaravelSecurityFeatureController extends Controller
         try {
             $selectedUser->update($input);
             $user_email = $selectedUser->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $selectedUser->email;
-            $this->generateAndSendOtp($selectedUser->id, $user_email);
-            return response()->json([
-                'status' => true,
-                'needs_verify' => true,
-                'email' => $user_email,
-                'message' => 'Verification code sent to your email. Please verify to complete login.',
-            ], 200);
+            $res = $this->generateAndSendOtp($selectedUser->id, $user_email);
+            return response()->json($res);
         } catch (Throwable $e) {
             return response()->json(['status' => false, 'message' => 'Internal server error!','error'=>$e->getMessage()]);
         }

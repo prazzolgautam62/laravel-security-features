@@ -116,12 +116,12 @@ trait HandlesSecurityFeatures
             ->first();
 
         if ($existingOtp) {
-            return response()->json([
+             return [
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $email,
                 'message' => 'A verification code has already been sent. Please check your email.',
-            ], 200);
+            ];
         }
 
         OtpRequest::create([
@@ -131,6 +131,13 @@ trait HandlesSecurityFeatures
         ]);
         //remove cache implementation and db implementation end
         Mail::to($email)->send(new VerificationCode($code));
+
+        return [
+            'status' => true,
+            'needs_verify' => true,
+            'email' => $email,
+            'message' => 'Verification code sent to your email. Please verify to complete login.'
+        ];
     }
 
     public function resendOtp(Request $request)
@@ -162,7 +169,7 @@ trait HandlesSecurityFeatures
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $user_email,
-                'message' => 'Please wait for some time to resend otp.',
+                'message' => 'Please wait for some time to resend OTP.',
             ];
         }
 
