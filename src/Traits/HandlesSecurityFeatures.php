@@ -124,6 +124,8 @@ trait HandlesSecurityFeatures
             ];
         }
 
+        OtpRequest::where('user_id',$user_id)->delete();
+
         OtpRequest::create([
             'user_id' => $user_id,
             'otp_code' => $code,
