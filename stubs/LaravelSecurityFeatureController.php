@@ -41,8 +41,11 @@ class LaravelSecurityFeatureController extends Controller
             'new_email' => ['required', 'email', 'max:191'],
         ];
 
+        $email_changed = false;
+
         if ($request->new_email !== $request->email) {
             $rules['new_email'][] = 'unique:users,email';
+            $email_changed = true;
         }
 
         $request->validate($rules);
@@ -70,8 +73,8 @@ class LaravelSecurityFeatureController extends Controller
         try {
             $selectedUser->update($input);
             $user_email = $selectedUser->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $selectedUser->email;
-            $res = $this->generateAndSendOtp($selectedUser->id, $user_email);
-            
+            $res = $this->generateAndSendOtp($selectedUser->id, $user_email, $email_changed);
+
             return response()->json($res);
         } catch (Throwable $e) {
             return response()->json(['status' => false, 'message' => 'Internal server error!','error'=>$e->getMessage()]);

@@ -105,7 +105,7 @@ trait HandlesSecurityFeatures
         return null; // Proceed to issue token
     }
 
-    public function generateAndSendOtp($user_id, $email)
+    public function generateAndSendOtp($user_id, $email, $email_changed = false)
     {
         $code = $this->generateVerificationCode();
         // Cache::put("verification_code_{$user_id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
@@ -115,7 +115,7 @@ trait HandlesSecurityFeatures
             ->where('expiry_time', '>=', now())
             ->first();
 
-        if ($existingOtp) {
+        if ($existingOtp && !$email_changed) {
              return [
                 'status' => true,
                 'needs_verify' => true,
