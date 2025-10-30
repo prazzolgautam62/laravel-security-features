@@ -29,6 +29,8 @@
                     <img src="https://veda-app.com/logo.png" alt="Veda" style="width:102px;margin:0 auto;display:block;margin-bottom:40px;">
                 </div>
                 <div>
+                    <p style="font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#212121;margin-bottom:32px;"><span style="color: #212121;">Hi, {{ $username }}</span><p>
+
                     <p style="font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#212121;margin-bottom:32px;"><span style="color: #212121;">As a part of our security protocol, we have generated a <b>One-Time Password(OTP)</b> for your login.</span><p>
 
                         <p style="font-style:normal;font-weight:400;font-size:16px;line-height:24px;color:#212121;margin-bottom:32px;">Please use the following <i><b>OTP code</b></i> to authenticate and access the account. </p>

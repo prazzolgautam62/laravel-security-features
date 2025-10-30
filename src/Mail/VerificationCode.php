@@ -12,11 +12,13 @@ class VerificationCode extends Mailable
 
     public $code;
     public $verification_code_expiry_time;
+    public $username;
 
-    public function __construct($code, $verification_code_expiry_time)
+    public function __construct($code, $verification_code_expiry_time, $username)
     {
         $this->code = $code;
         $this->verification_code_expiry_time = $verification_code_expiry_time;
+        $this->username = $username;
     }
 
     public function build()
@@ -24,6 +26,6 @@ class VerificationCode extends Mailable
         return $this->from(config('security-features.email_from'), config('security-features.email_from_name'))
                     ->subject('OTP request for ' . config('security-features.platform_name'))
                     ->view('security-features::emails.verification_code') // You'll publish this view later
-                    ->with(['code' => $this->code, 'verification_code_expiry_time' => $this->verification_code_expiry_time]);
+                    ->with(['code' => $this->code, 'verification_code_expiry_time' => $this->verification_code_expiry_time, 'username'=> $this->username]);
     }
 }

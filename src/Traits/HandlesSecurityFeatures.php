@@ -69,6 +69,7 @@ trait HandlesSecurityFeatures
         if ($needsVerification) {
             $code = $this->generateVerificationCode();
             $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
+            $username = $user->role_name == 'superadmin' ? 'Veda Billing Super Admin': $user->name;
             // Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
 
             //remove cache implementation and db implementation start
@@ -93,7 +94,7 @@ trait HandlesSecurityFeatures
             //remove cache implementation and db implementation end
 
             $verification_code_expiry_time = config('security-features.verification_code_expiry');
-            Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time));
+            Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
 
             return response()->json([
                 'status' => false,
@@ -106,7 +107,7 @@ trait HandlesSecurityFeatures
         return null; // Proceed to issue token
     }
 
-    public function generateAndSendOtp($user_id, $email, $email_changed = false)
+    public function generateAndSendOtp($user_id, $email, $username = '', $email_changed = false)
     {
         $code = $this->generateVerificationCode();
         // Cache::put("verification_code_{$user_id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
@@ -135,7 +136,7 @@ trait HandlesSecurityFeatures
         //remove cache implementation and db implementation end
 
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
-        Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time));
+        Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
 
         return [
             'status' => true,
@@ -164,6 +165,7 @@ trait HandlesSecurityFeatures
         }
 
         $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
+        $username = $user->role_name == 'superadmin' ? 'Veda Billing Super Admin': $user->name;
 
         $existingOtp = OtpRequest::where('user_id', $user->id)
             ->where('expiry_time', '>=', now())
@@ -188,7 +190,7 @@ trait HandlesSecurityFeatures
         //remove cache implementation and db implementation end
         
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
-        Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time));
+        Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
 
         return [
             'status' => false,
