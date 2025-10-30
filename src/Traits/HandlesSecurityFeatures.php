@@ -117,7 +117,7 @@ trait HandlesSecurityFeatures
 
         if ($existingOtp) {
              return [
-                'status' => false,
+                'status' => true,
                 'needs_verify' => true,
                 'email' => $email,
                 'message' => 'A verification code has already been sent. Please check your email.',
