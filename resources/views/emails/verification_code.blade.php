@@ -40,7 +40,7 @@
                         <div style="margin-right:10px;">
                             <img src="https://img.icons8.com/?size=96&id=82742&format=png&color=737373" alt="info" style="width: 16px;">
                         </div>
-                        <p style="font-style:normal;font-weight:400;font-size:14px;line-height:23px;color:#212121;margin:0;">Please note that this OTP is valid only for a limited time and for a single login attempt. Do not share this OTP with anyone, 
+                        <p style="font-style:normal;font-weight:400;font-size:14px;line-height:23px;color:#212121;margin:0;">Please note that this OTP is valid only for a limited time ({{ $verification_code_expiry_time }} minutes) and for a single login attempt. Do not share this OTP with anyone, 
                             including us. If you did not request an OTP or if you have any concerns about the security of your account, 
                             Please contact our customer support immediately.</p>
                     </div>

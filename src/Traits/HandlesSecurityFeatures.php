@@ -92,7 +92,8 @@ trait HandlesSecurityFeatures
             ]);
             //remove cache implementation and db implementation end
 
-            Mail::to($user_email)->send(new VerificationCode($code));
+            $verification_code_expiry_time = config('security-features.verification_code_expiry');
+            Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time));
 
             return response()->json([
                 'status' => false,
@@ -132,7 +133,9 @@ trait HandlesSecurityFeatures
             'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
         ]);
         //remove cache implementation and db implementation end
-        Mail::to($email)->send(new VerificationCode($code));
+
+        $verification_code_expiry_time = config('security-features.verification_code_expiry');
+        Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time));
 
         return [
             'status' => true,
@@ -183,7 +186,9 @@ trait HandlesSecurityFeatures
             'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
         ]);
         //remove cache implementation and db implementation end
-        Mail::to($user_email)->send(new VerificationCode($code));
+        
+        $verification_code_expiry_time = config('security-features.verification_code_expiry');
+        Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time));
 
         return [
             'status' => false,
