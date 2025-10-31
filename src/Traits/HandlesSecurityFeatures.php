@@ -40,26 +40,12 @@ trait HandlesSecurityFeatures
         // }
 
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
-            $deviceHash = $this->getDeviceHash($request);
             $deviceToken = $request->cookie('device_token');
             $device = null;
-
+                    
             if ($deviceToken) {
-                // Check cookie token first
                 $device = UserDevice::where('user_id', $user->id)
                     ->where('device_token', $deviceToken)
-                    ->first();
-
-                // If cookie matches but browser is different, require 2FA
-                if ($device && $device->device_hash !== $deviceHash) {
-                    $device = null; // Force 2FA for new browser
-                }
-            }
-
-            // Fallback: device hash only
-            if (!$device) {
-                $device = UserDevice::where('user_id', $user->id)
-                    ->where('device_hash', $deviceHash)
                     ->first();
             }
 
