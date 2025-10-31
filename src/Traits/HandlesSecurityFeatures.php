@@ -383,7 +383,7 @@ trait HandlesSecurityFeatures
                     60 * 24 * 30,             // expiry in minutes (30 days)
                     '/',                      // path
                     null,                     // domain
-                    true,                     // Secure (HTTPS)
+                    config('session.secure'), // Secure (HTTPS)
                     true                      // HttpOnly
                 );
         }
