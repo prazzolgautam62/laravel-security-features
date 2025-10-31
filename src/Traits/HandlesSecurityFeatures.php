@@ -130,12 +130,12 @@ trait HandlesSecurityFeatures
             ->where('expiry_time', '>=', now())
             ->first();
 
-        if ($existingOtp && !$email_changed) {
+        if ($existingOtp) {
              return [
                 'status' => true,
                 'needs_verify' => true,
                 'email' => $email,
-                'message' => 'A verification code has already been sent. Please check your email.',
+                'message' => $email_changed ? 'Please wait for some to send OTP.' : 'A verification code has already been sent. Please check your email.',
             ];
         }
 
