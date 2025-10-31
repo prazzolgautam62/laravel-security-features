@@ -323,12 +323,14 @@ trait HandlesSecurityFeatures
         //     $user->save();
         // }
 
+        $cookie = null;
+
         // Device management & 2FA
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
-            $this->handleDeviceManagement($request, $user);
+            $cookie = $this->handleDeviceManagement($request, $user);
         }
 
-        return $user;
+        return [$user, $cookie];
     }
 
     protected function handleDeviceManagement(Request $request, $user)
@@ -372,9 +374,10 @@ trait HandlesSecurityFeatures
             $device->update(['last_verified_at' => now()]);
         }
 
+        $cookie = null;
+
         if ($rememberDevice){
-             Cookie::queue(
-                Cookie::make(
+                $cookie = Cookie::make(
                     'device_token',           // cookie name
                     $deviceToken,             // value
                     60 * 24 * 30,             // expiry in minutes (30 days)
@@ -382,9 +385,10 @@ trait HandlesSecurityFeatures
                     null,                     // domain
                     true,                     // Secure (HTTPS)
                     true                      // HttpOnly
-                )
-            );
+                );
         }
+
+        return $cookie;
     }
 
     protected function generateVerificationCode()

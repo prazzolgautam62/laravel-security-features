@@ -18,7 +18,7 @@ class LaravelSecurityFeatureController extends Controller
 
     public function verify(Request $request)
     {
-        $user = $this->verifyCode($request);
+        [$user, $cookie] = $this->verifyCode($request);
         // custom logic here...
     }
 
