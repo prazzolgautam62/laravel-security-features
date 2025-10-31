@@ -15,6 +15,7 @@ class CreateUserDevicesTable extends Migration
             $table->string('user_agent');
             $table->string('ip_address');
             $table->string('device_info');
+            $table->string('device_token')->nullable()->unique();
             $table->boolean('remember_device')->default(1);
             $table->timestamp('last_verified_at')->nullable();
             $table->timestamps();

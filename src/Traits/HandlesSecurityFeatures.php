@@ -4,8 +4,10 @@ namespace Prajwol\LaravelSecurityFeatures\Traits;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +27,13 @@ trait HandlesSecurityFeatures
         $user = $userClass::where('email', $request->email)->first();
         $needsVerification = false;
 
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid credentials.',
+            ], 200);
+        }
+
         // Check email verification if enabled in config and user hasn't verified
         // if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
         //     $needsVerification = true;
@@ -32,9 +41,27 @@ trait HandlesSecurityFeatures
 
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
             $deviceHash = $this->getDeviceHash($request);
-            $device = UserDevice::where('user_id', $user->id)
-                ->where('device_hash', $deviceHash)
-                ->first();
+            $deviceToken = $request->cookie('device_token');
+            $device = null;
+
+            if ($deviceToken) {
+                // Check cookie token first
+                $device = UserDevice::where('user_id', $user->id)
+                    ->where('device_token', $deviceToken)
+                    ->first();
+
+                // If cookie matches but browser is different, require 2FA
+                if ($device && $device->device_hash !== $deviceHash) {
+                    $device = null; // Force 2FA for new browser
+                }
+            }
+
+            // Fallback: device hash only
+            if (!$device) {
+                $device = UserDevice::where('user_id', $user->id)
+                    ->where('device_hash', $deviceHash)
+                    ->first();
+            }
 
             $requires2fa = config('security-features.enable_2fa') && $user->enable_2fa;
             $isNewDevice = config('security-features.enable_device_management') && !$device;
@@ -317,12 +344,15 @@ trait HandlesSecurityFeatures
         $rememberOption = $request->input('remember_option', 'ask_every_time');
         $rememberDevice = $rememberOption === 'remember' ? 1 : 0;
 
+        $deviceToken = $device ? $device->device_token : Str::random(40);
+
         if ($pendingDevice && config('security-features.enable_device_management')) {
             if ($device) {
                 $device->update([
                     'user_agent'       => $pendingDevice['user_agent'],
                     'ip_address'       => $pendingDevice['ip_address'],
                     'device_info'      => $pendingDevice['device_info'],
+                    'device_token'     => $deviceToken,
                     'remember_device'  => $rememberDevice,
                     'last_verified_at' => now(),
                 ]);
@@ -333,12 +363,27 @@ trait HandlesSecurityFeatures
                     'user_agent'       => $pendingDevice['user_agent'],
                     'ip_address'       => $pendingDevice['ip_address'],
                     'device_info'      => $pendingDevice['device_info'],
+                    'device_token'     => $deviceToken,
                     'remember_device'  => $rememberDevice,
                     'last_verified_at' => now(),
                 ]);
             }
         } elseif ($device && config('security-features.enable_2fa') && $user->enable_2fa) {
             $device->update(['last_verified_at' => now()]);
+        }
+
+        if ($rememberDevice){
+             Cookie::queue(
+                Cookie::make(
+                    'device_token',           // cookie name
+                    $deviceToken,             // value
+                    60 * 24 * 30,             // expiry in minutes (30 days)
+                    '/',                      // path
+                    null,                     // domain
+                    true,                     // Secure (HTTPS)
+                    true                      // HttpOnly
+                )
+            );
         }
     }
 
