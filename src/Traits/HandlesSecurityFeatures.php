@@ -96,7 +96,7 @@ trait HandlesSecurityFeatures
                     'status' => false,
                     'needs_verify' => true,
                     'email' => $user->email,
-                    'message' => 'A verification code has already been sent. Please check your email.',
+                    'message' => 'OTP has already been sent. Please check your email.',
                 ], 200);
             }
 
@@ -114,7 +114,7 @@ trait HandlesSecurityFeatures
                 'status' => false,
                 'needs_verify' => true,
                 'email' => $user->email,
-                'message' => 'Verification code sent to your email. Please verify to complete login.',
+                'message' => 'OTP has been sent to your email. Please verify it to complete your login.',
             ], 200);
         }
 
@@ -136,7 +136,7 @@ trait HandlesSecurityFeatures
                 'status' => true,
                 'needs_verify' => true,
                 'email' => $email,
-                'message' => $email_changed ? 'Please wait for some to send OTP.' : 'A verification code has already been sent. Please check your email.',
+                'message' => $email_changed ? 'Please wait for some to send OTP.' : 'An OTP has already been sent. Please check your email.',
             ];
         }
 
@@ -156,7 +156,7 @@ trait HandlesSecurityFeatures
             'status' => true,
             'needs_verify' => true,
             'email' => $email,
-            'message' => 'Verification code sent to your email. Please verify to complete login.'
+            'message' => 'OTP sent to your email. Please verify to complete login.'
         ];
     }
 
@@ -210,7 +210,7 @@ trait HandlesSecurityFeatures
             'status' => false,
             'needs_verify' => true,
             'email' => $user_email,
-            'message' => 'Verification code sent to your email. Please verify to complete login.',
+            'message' => 'OTP sent to your email. Please verify to complete login.',
         ];
     }
 
@@ -318,6 +318,10 @@ trait HandlesSecurityFeatures
         }
 
         return [$user, $cookie];
+    }
+
+    public function revokeOtps($user_id){
+        OtpRequest::where('user_id',$user_id)->delete();
     }
 
     protected function handleDeviceManagement(Request $request, $user)
