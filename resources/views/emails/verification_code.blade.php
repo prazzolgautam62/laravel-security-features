@@ -22,7 +22,7 @@
 <!-- min-height:100vh; -->
 <body style="margin:0;padding:0;background:#eee!important;position:relative;font-size:100%;font-family:Roboto">
     <div style="width:100%;padding:20px 0;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-ms-flex-align:center;align-items:center;">
-        <div style="width:600px;height:800px;margin:0 auto;background:#FFFFFF;padding:35px 35px;">
+        <div style="width:600px;max-width:100%;margin:0 auto;background:#FFFFFF;padding:35px 35px;">
             <div style="margin-bottom:20px;">
                 <div style="max-width:370px;margin:0 auto;width:95%;">
                     <!-- <img src="https://veda-app.s3.ap-south-1.amazonaws.com/assets/2/about/2023-04-17/pjpXLl9Lek1EOY77-1681731117.png" alt="Veda" style="width:102px;margin:0 auto;display:block;margin-bottom:40px;"> -->
