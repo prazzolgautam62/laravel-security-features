@@ -40,6 +40,7 @@ trait HandlesSecurityFeatures
         // }
 
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
+            $deviceHash = $this->getDeviceHash($request);
             $deviceToken = $request->cookie('device_token');
             $device = null;
                     
