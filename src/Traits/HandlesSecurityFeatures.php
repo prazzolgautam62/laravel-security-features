@@ -311,9 +311,10 @@ trait HandlesSecurityFeatures
         // }
 
         $cookie = null;
+        $deviceToken = $request->cookie('device_token');
 
         // Device management & 2FA
-        if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
+        if (config('security-features.enable_2fa') || config('security-features.enable_device_management') && !$deviceToken) {
             $cookie = $this->handleDeviceManagement($request, $user);
         }
 
