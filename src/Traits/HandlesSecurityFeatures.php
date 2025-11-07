@@ -45,8 +45,7 @@ trait HandlesSecurityFeatures
             $device = null;
                     
             if ($deviceToken) {
-                $device = UserDevice::where('user_id', $user->id)
-                    ->where('device_token', $deviceToken)
+                $device = UserDevice::where('device_token', $deviceToken)
                     ->first();
             }
 
