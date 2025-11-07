@@ -8,8 +8,8 @@ class RemoveDeviceTokenUniqueFromUserDevicesTable extends Migration
 {
     public function up()
     {
-        Schema::create('user_devices', function (Blueprint $table) {
-             $table->dropUnique('user_devices_device_token_unique');
+        Schema::table('user_devices', function (Blueprint $table) {
+             $table->dropUnique(['device_token']);
         });
     }
 
