@@ -34,20 +34,15 @@ trait HandlesSecurityFeatures
             ], 200);
         }
 
-        // Check email verification if enabled in config and user hasn't verified
-        // if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
-        //     $needsVerification = true;
-        // }
-
         if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
             $deviceHash = $this->getDeviceHash($request);
             $deviceToken = $request->cookie('device_token');
             $device = null;
                     
-            if ($deviceToken) {
-                $device = UserDevice::where('device_token', $deviceToken)
-                    ->first();
-            }
+            // Check if this device exists for current user by hash (not by token)
+            $device = UserDevice::where('device_token', $deviceToken)
+                ->where('user_id', $user->id)
+                ->first();
 
             $requires2fa = config('security-features.enable_2fa') && $user->enable_2fa;
             $isNewDevice = config('security-features.enable_device_management') && !$device;
@@ -72,10 +67,12 @@ trait HandlesSecurityFeatures
                     'hash' => $deviceHash,
                     'user_agent' => $request->userAgent(),
                     'ip_address' => $request->ip(),
-                    'device_info' => $request->header('User-Agent')
+                    'device_info' => $request->header('User-Agent'),
+                    'device_token' => $deviceToken // Store to check if token exists from other users
                 ], now()->addMinutes(config('security-features.verification_code_expiry')));
             }
         }
+        
         if(config('security-features.enable_login_logs'))
             event(new Login('api', $user, false));
 
@@ -83,9 +80,7 @@ trait HandlesSecurityFeatures
             $code = $this->generateVerificationCode();
             $user_email = $user->role_name == 'superadmin' ? config('security-features.superadmin_email_to') : $user->email;
             $username = $user->role_name == 'superadmin' ? 'Veda Billing Super Admin': $user->name;
-            // Cache::put("verification_code_{$user->id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
 
-            //remove cache implementation and db implementation start
             $existingOtp = OtpRequest::where('user_id', $user->id)
                 ->where('expiry_time', '>=', now())
                 ->first();
@@ -104,7 +99,6 @@ trait HandlesSecurityFeatures
                 'otp_code' => $code,
                 'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
             ]);
-            //remove cache implementation and db implementation end
 
             $verification_code_expiry_time = config('security-features.verification_code_expiry');
             Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
@@ -123,9 +117,7 @@ trait HandlesSecurityFeatures
     public function generateAndSendOtp($user_id, $email, $username = '', $email_changed = false)
     {
         $code = $this->generateVerificationCode();
-        // Cache::put("verification_code_{$user_id}", $code, now()->addMinutes(config('security-features.verification_code_expiry')));
 
-        //remove cache implementation and db implementation start
         $existingOtp = OtpRequest::where('user_id', $user_id)
             ->where('expiry_time', '>=', now())
             ->first();
@@ -146,7 +138,6 @@ trait HandlesSecurityFeatures
             'otp_code' => $code,
             'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
         ]);
-        //remove cache implementation and db implementation end
 
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
         Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
@@ -200,7 +191,6 @@ trait HandlesSecurityFeatures
             'otp_code' => $code,
             'expiry_time' => now()->addMinutes(config('security-features.verification_code_expiry'))
         ]);
-        //remove cache implementation and db implementation end
         
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
         Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
@@ -229,14 +219,10 @@ trait HandlesSecurityFeatures
             ]);
         }
 
-        // $cachedCode = Cache::get("verification_code_{$user->id}");
-
-        //remove cache implementation and db implementation start
         $otpRecord = OtpRequest::where('user_id', $user->id)
             ->where('expiry_time', '>=', now())
             ->first();
         $cachedCode = $otpRecord ? $otpRecord->otp_code : null;
-        //remove cache implementation and db implementation end
 
         if (!$cachedCode || $cachedCode !== $request->code) {
             throw ValidationException::withMessages([
@@ -244,13 +230,8 @@ trait HandlesSecurityFeatures
             ]);
         }
 
-        // Clear cache
-        // Cache::forget("verification_code_{$user->id}");
-
-        //remove cache implementation and db implementation start
         if ($otpRecord)
             OtpRequest::where('id', $otpRecord->id)->delete();
-        //remove cache implementation and db implementation end
 
         // Email verification
         if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
@@ -280,14 +261,10 @@ trait HandlesSecurityFeatures
             ]);
         }
 
-        // $cachedCode = Cache::get("verification_code_{$user->id}");
-
-        //remove cache implementation and db implementation start
         $otpRecord = OtpRequest::where('user_id', $user->id)
             ->where('expiry_time', '>=', now())
             ->first();
         $cachedCode = $otpRecord ? $otpRecord->otp_code : null;
-        //remove cache implementation and db implementation end
 
         if (!$cachedCode || $cachedCode !== $request->code) {
             throw ValidationException::withMessages([
@@ -295,25 +272,13 @@ trait HandlesSecurityFeatures
             ]);
         }
 
-        // Clear cache
-        // Cache::forget("verification_code_{$user->id}");
-
-        //remove cache implementation and db implementation start
         if ($otpRecord)
             OtpRequest::where('id', $otpRecord->id)->delete();
-        //remove cache implementation and db implementation end
-
-        // Email verification
-        // if (config('security-features.enable_email_verify') && !$user->email_verified_at) {
-        //     $user->email_verified_at = now();
-        //     $user->save();
-        // }
 
         $cookie = null;
-        $deviceToken = $request->cookie('device_token');
 
         // Device management & 2FA
-        if (config('security-features.enable_2fa') || config('security-features.enable_device_management') && !$deviceToken) {
+        if (config('security-features.enable_2fa') || config('security-features.enable_device_management')) {
             $cookie = $this->handleDeviceManagement($request, $user);
         }
 
@@ -328,6 +293,14 @@ trait HandlesSecurityFeatures
     {
         $pendingDevice = Cache::pull("pending_device_{$user->id}");
         $deviceHash = $pendingDevice['hash'] ?? $this->getDeviceHash($request);
+        
+        // KEY CHANGE: Reuse existing device token from cookie if available
+        $existingDeviceToken = $request->cookie('device_token');
+        
+        // If there's an existing token from another user's device record, reuse it
+        if (!$existingDeviceToken && $pendingDevice && isset($pendingDevice['existing_device_token'])) {
+            $existingDeviceToken = $pendingDevice['existing_device_token'];
+        }
 
         $device = UserDevice::where('user_id', $user->id)
             ->where('device_hash', $deviceHash)
@@ -337,7 +310,8 @@ trait HandlesSecurityFeatures
         $rememberOption = $request->input('remember_option', 'ask_every_time');
         $rememberDevice = $rememberOption === 'remember' ? 1 : 0;
 
-        $deviceToken = $device ? $device->device_token : Str::random(40);
+        // KEY CHANGE: Use existing device token if available, otherwise create new one
+        $deviceToken = $existingDeviceToken ?: ($device ? $device->device_token : Str::random(40));
 
         if ($pendingDevice && config('security-features.enable_device_management')) {
             if ($device) {
@@ -362,21 +336,27 @@ trait HandlesSecurityFeatures
                 ]);
             }
         } elseif ($device && config('security-features.enable_2fa') && $user->enable_2fa) {
-            $device->update(['last_verified_at' => now()]);
+            // KEY CHANGE: Also update the device token when updating last_verified_at
+            $device->update([
+                'last_verified_at' => now(),
+                'device_token' => $deviceToken,
+                'remember_device' => $rememberDevice
+            ]);
         }
 
         $cookie = null;
 
-        if ($rememberDevice){
-                $cookie = Cookie::make(
-                    'device_token',           // cookie name
-                    $deviceToken,             // value
-                    60 * 24 * 30,             // expiry in minutes (30 days)
-                    '/',                      // path
-                    null,                     // domain
-                    config('session.secure'), // Secure (HTTPS)
-                    true                      // HttpOnly
-                );
+        // KEY CHANGE: Always set the cookie if remember is enabled, regardless of whether it's new or existing
+        if ($rememberDevice) {
+            $cookie = Cookie::make(
+                'device_token',           // cookie name
+                $deviceToken,             // value (reused across users)
+                60 * 24 * 30,             // expiry in minutes (30 days)
+                '/',                      // path
+                null,                     // domain
+                config('session.secure'), // Secure (HTTPS)
+                true                      // HttpOnly
+            );
         }
 
         return $cookie;
