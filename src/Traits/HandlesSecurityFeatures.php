@@ -101,7 +101,7 @@ trait HandlesSecurityFeatures
             ]);
 
             $verification_code_expiry_time = config('security-features.verification_code_expiry');
-            Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
+            Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username, 'One-Time Password (OTP)'));
 
             return response()->json([
                 'status' => false,
@@ -140,7 +140,7 @@ trait HandlesSecurityFeatures
         ]);
 
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
-        Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
+        Mail::to($email)->send(new VerificationCode($code, $verification_code_expiry_time, $username, 'Account Verification'));
 
         return [
             'status' => true,
@@ -193,7 +193,7 @@ trait HandlesSecurityFeatures
         ]);
         
         $verification_code_expiry_time = config('security-features.verification_code_expiry');
-        Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username));
+        Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username, 'One-Time Password (OTP)'));
 
         return [
             'status' => false,
