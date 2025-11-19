@@ -196,7 +196,7 @@ trait HandlesSecurityFeatures
         Mail::to($user_email)->send(new VerificationCode($code, $verification_code_expiry_time, $username, 'One-Time Password (OTP)'));
 
         return [
-            'status' => false,
+            'status' => true,
             'needs_verify' => true,
             'email' => $user_email,
             'message' => 'OTP sent to your email. Please verify to complete login.',
