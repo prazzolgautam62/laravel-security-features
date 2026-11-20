@@ -51,7 +51,8 @@ trait HandlesSecurityFeatures
             // Check if 2FA has expired based on validity days
             if ($requires2fa && $device && $device->last_verified_at) {
                 $validityDays = config('security-features.2fa_validity_days', 30);
-                $is2faExpired = \Carbon\Carbon::parse($device->last_verified_at)->diffInDays(now()) > $validityDays;
+                // Carbon 3 (Laravel 11+) returns a signed float; normalise to whole days like Carbon 2
+                $is2faExpired = (int) abs(\Carbon\Carbon::parse($device->last_verified_at)->diffInDays(now())) > $validityDays;
             }
 
             // Handle remember_device logic

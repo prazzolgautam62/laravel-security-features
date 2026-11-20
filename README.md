@@ -1,6 +1,6 @@
 # Laravel Security Features Package
 
-This package enhances Laravel applications with advanced security features including email verification, two-factor authentication (2FA), login logging, and device management. It is designed for Laravel 6.2 and supports PHP versions 7.2 to 7.4. The package assumes a `users` table exists in your database.
+This package enhances Laravel applications with advanced security features including email verification, two-factor authentication (2FA), login logging, and device management. It supports Laravel 6.x through 13.x on PHP 8.0 or newer. The package assumes a `users` table exists in your database.
 
 ## Features
 - **Email Verification Middleware**: Ensures users verify their email addresses before accessing specific protected routes.
@@ -9,7 +9,8 @@ This package enhances Laravel applications with advanced security features inclu
 - **Device Management**: Manages and verifies devices used for login, preventing unauthorized access from unrecognized devices.
 
 ## Requirements
-- PHP 7.2, 7.3, or 7.4
+- PHP 8.0 or newer (PHP 8.4 supported)
+- Laravel 6.x – 13.x (any version your PHP release can install)
 - A `users` table in your database with an `email_verified_at` column
 
 ## Installation
@@ -18,7 +19,7 @@ Follow these steps to install and configure the package in your Laravel applicat
 
 1. **Install the Package**
    ```bash
-   composer require prajwol/laravel-security-features
+   composer require prazzolgautam62/laravel-security-features
    ```
 
 2. **Publish Config, Views, Routes, and Controller**
@@ -116,6 +117,15 @@ return [
 4. **Email Verification Middleware**
    - Protects sensitive routes.
    - Automatically denies unverified users.
+
+## Testing
+
+```bash
+composer install
+composer test
+```
+
+The suite runs on Orchestra Testbench with an in-memory SQLite database.
 
 ## Support
 For issues or feature requests, visit [GitHub](https://github.com/prazzolgautam62/laravel-security-features)  
